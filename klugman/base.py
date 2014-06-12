@@ -22,4 +22,5 @@ def _remove_empty(kv):
 
 
 def get(url, cmd, params):
-    return requests.get("%s/%s" % (url, cmd), params=params)
+    final = "%s/%s" % (url, cmd)
+    return requests.get(final, params=params)

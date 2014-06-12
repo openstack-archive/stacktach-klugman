@@ -45,11 +45,13 @@ class V2(object):
 
     def dispatch(self, cmdline):
         self.arguments = docopt(__doc__, argv=cmdline)
-        print self.arguments
+        if self.base_args['--debug']:
+            print self.arguments
 
         if self.arguments['events']:
             response = self.do_events()
             # handle cmdline output here.
+            print response.json()
 
     def do_events(self):
         eid = self.arguments.get('--id')
@@ -57,12 +59,11 @@ class V2(object):
         start = self.arguments.get('--start')
         end = self.arguments.get('--end')
 
-        cmd = "/events"
+        cmd = "events"
         if eid:
-            cmd = "/events/%d" % eid
+            cmd = "events/%d" % eid
         params = base._remove_empty({'request_id': rid,
                                      'start_ts': start,
                                      'end_ts': end})
 
-        print "Params:", params
         return base.get(self.base_url, cmd, params)

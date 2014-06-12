@@ -22,10 +22,11 @@ Usage:
 
 Options:
   -h --help     Show this help message
-  --version     Show klugman version.
+  --version     Show klugman version
+  --debug       Debug mode
   -a, --api_version <api_version>
                 Which API version to use [default: latest]
-  --url <url>   StackTach.v3 server url [default: http://localhost]
+  --url <url>   StackTach.v3 server url [default: http://localhost:8000]
 
 For a list of possible StackTach commands, use:
    klugman help [<command>]
@@ -42,11 +43,10 @@ versions = {1: v1.V1, 2: v2.V2}
 latest = 2
 
 
-if __name__ == '__main__':
+def main():
     arguments = docopt(__doc__, options_first=True)
-    print "----base----"
-    print arguments
-    print "----impl----"
+    if arguments['--debug']:
+        print arguments
 
     version = arguments["--api_version"]
     if version == "latest":
@@ -55,9 +55,12 @@ if __name__ == '__main__':
         version = int(version)
     impl = versions[version]
 
-    url = "%s/v%d/" % (arguments["--url"], version)
-    print "base url:", url
+    url = "%s/v%d" % (arguments["--url"], version)
     argv = [arguments['<command>']] + arguments['<args>']
 
     api = impl(url, arguments)
     api.dispatch(argv)
+
+
+if __name__ == '__main__':
+    main()
