@@ -13,14 +13,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
+"""Klugman - cmdline and client library for StackTach.v3
+
+Usage:
+  klugman.py [-a <api_version>, --api_version=<api_version>][--url=<url>] <command> [<args>...]
+  klugman.py (-h | --help)
+  klugman.py --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+  -a <api_version>, --api_version=<api_version>  Which API version to use
+                [default: latest]
+  --url=<url>     StackTach.v3 server url [default: http://localhost]
+
+"""
+
+from docopt import docopt
 
 
-parser = argparse.ArgumentParser(description='OpenStack.v3 Client.')
+import v1
+import v2
 
-parser.add_argument('url', dest='url',
-                    help='StackTach.v3 host url')
+versions = {1: v1, 2: v2}
+latest = 2
 
-parser.add_argument('cmd', dest='cmd')
 
-args = parser.parse_args()
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+    print arguments
+
+    version = arguments["--api_version"][0]
+    if version == "latest":
+        version = latest
+    else:
+        version = int(version)
+    impl = versions[version]
+
+    argv = [arguments['<command>']] + arguments['<args>']
