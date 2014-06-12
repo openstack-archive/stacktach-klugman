@@ -32,6 +32,15 @@ from docopt import docopt
 
 class V1(object):
 
-    def __init__(self, base_url, base_args, cmdline):
-        arguments = docopt(__doc__, argv=cmdline)
-        print arguments
+    def __init__(self, base_url, base_args):
+        self.base_url = base_url
+        self.base_args = base_args
+
+    def dispatch(self, cmdline):
+        self.arguments = docopt(__doc__, argv=cmdline)
+        print self.arguments
+
+        if self.arguments['events']:
+            response = self.do_events()
+            # handle cmdline output here.
+

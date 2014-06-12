@@ -59,4 +59,5 @@ if __name__ == '__main__':
     print "base url:", url
     argv = [arguments['<command>']] + arguments['<args>']
 
-    impl(url, arguments, argv)
+    api = impl(url, arguments)
+    api.dispatch(argv)
