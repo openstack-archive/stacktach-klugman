@@ -23,9 +23,9 @@ Usage:
 Options:
   -h --help     Show this help message
   --version     Show klugman version.
-  -a <api_version>, --api_version=<api_version>  Which API version to use
-                [default: latest]
-  --url=<url>     StackTach.v3 server url [default: http://localhost]
+  -a, --api_version <api_version>
+                Which API version to use [default: latest]
+  --url <url>   StackTach.v3 server url [default: http://localhost]
 
 For a list of possible StackTach commands, use:
    klugman help [<command>]

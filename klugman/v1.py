@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""usage: klugman.py events [options]
+"""usage:
+    klugman.py events [-irse]
+    klugman.py events (-h | --help)
 
   options:
   -i <id>              filter by event <id>
