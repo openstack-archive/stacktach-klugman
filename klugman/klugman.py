@@ -16,16 +16,19 @@
 """Klugman - cmdline and client library for StackTach.v3
 
 Usage:
-  klugman.py [-a <api_version>, --api_version=<api_version>][--url=<url>] <command> [<args>...]
+  klugman.py [options] <command> [<args>...]
   klugman.py (-h | --help)
   klugman.py --version
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
+  -h --help     Show this help message
+  --version     Show klugman version.
   -a <api_version>, --api_version=<api_version>  Which API version to use
                 [default: latest]
   --url=<url>     StackTach.v3 server url [default: http://localhost]
+
+For a list of possible StackTach commands, use:
+   klugman help [<command>]
 
 """
 
@@ -35,19 +38,25 @@ from docopt import docopt
 import v1
 import v2
 
-versions = {1: v1, 2: v2}
+versions = {1: v1.V1, 2: v2.V2}
 latest = 2
 
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__)
+    arguments = docopt(__doc__, options_first=True)
+    print "----base----"
     print arguments
+    print "----impl----"
 
-    version = arguments["--api_version"][0]
+    version = arguments["--api_version"]
     if version == "latest":
         version = latest
     else:
         version = int(version)
     impl = versions[version]
 
+    url = "%s/v%d/" % (arguments["--url"], version)
+    print "base url:", url
     argv = [arguments['<command>']] + arguments['<args>']
+
+    impl(url, arguments, argv)

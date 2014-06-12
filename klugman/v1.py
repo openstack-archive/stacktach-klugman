@@ -13,3 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""usage: klugman.py events [options]
+
+  options:
+  -i <id>              filter by event <id>
+  -r <request_id>      filter by <request_id>
+  -s <start_datetime>  starting datetime range
+  -e <end_datetime>    ending datetime range
+
+"""
+
+
+
+from docopt import docopt
+
+
+class V1(object):
+
+    def __init__(self, base_url, base_args, cmdline):
+        arguments = docopt(__doc__, argv=cmdline)
+        print arguments
