@@ -14,56 +14,59 @@
 # limitations under the License.
 
 
-"""usage:
-    klugman.py events [options]
-    klugman.py events (-h | --help)
-
-  options:
-  -i, --id <id>
-            filter by event ID
-  -r, --request_id <request_id>
-            filter by Request ID
-  -s, --start <start_datetime>
-            starting datetime range
-  -e, --end <end_datetime>
-            ending datetime range
-
-  notes:
-  -r isn't needed if -i is supplied.
-"""
-
-
 import base
+import v1
 
 from docopt import docopt
+import requests
 
 
-class V2(object):
+class Archives(object):
+    """usage:
+        klugman.py archives <start_datetime> <end_datetime> [options]
+
+       options:
+       -h, --help
+       <start_datetime>  starting datetime range
+       <end_datetime>    ending datetime range
+
+    """
+
+    def cmdline(self, version, cmdline):
+        arguments = docopt(Archives.__doc__, argv=cmdline)
+        if version.base_args['--debug']:
+            print arguments
+
+        response = self.do_archives(version, arguments)
+        raw_rows = response.json()
+
+        keys = ['message_id', 'request_id', 'when', 'name']
+        base.dump_response(keys, raw_rows)
+
+    def do_archives(self, version, arguments):
+        start = arguments.get('--start')
+        end = arguments.get('--end')
+
+        cmd = "archives"
+        params = base.remove_empty({'start_ts': start,
+                                    'end_ts': end})
+
+        return base.get(version.base_url, cmd, params)
+
+
+class V2(base.Impl):
+
+    # Note the [<args>...] [options] approach
+    # which basically says "anything is acceptable".
+    # We will be more strict in the actual command handler.
+    """usage:
+        klugman.py events [options]
+        klugman.py archives [<args>...] [options]
+
+        -h, --help  show command options
+    """
+
     def __init__(self, base_url, base_args):
-        self.base_url = base_url
-        self.base_args = base_args
-
-    def dispatch(self, cmdline):
-        self.arguments = docopt(__doc__, argv=cmdline)
-        if self.base_args['--debug']:
-            print self.arguments
-
-        if self.arguments['events']:
-            response = self.do_events()
-            # handle cmdline output here.
-            print response.json()
-
-    def do_events(self):
-        eid = self.arguments.get('--id')
-        rid = self.arguments.get('--request_id')
-        start = self.arguments.get('--start')
-        end = self.arguments.get('--end')
-
-        cmd = "events"
-        if eid:
-            cmd = "events/%d" % eid
-        params = base._remove_empty({'request_id': rid,
-                                     'start_ts': start,
-                                     'end_ts': end})
-
-        return base.get(self.base_url, cmd, params)
+        cmds = {'events': v1.Events(),
+                'archives': Archives()}
+        super(V2, self).__init__(base_url, base_args, cmds, V2.__doc__)

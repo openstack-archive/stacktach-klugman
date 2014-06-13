@@ -29,7 +29,7 @@ Options:
   --url <url>   StackTach.v3 server url [default: http://localhost:8000]
 
 For a list of possible StackTach commands, use:
-   klugman help [<command>]
+   klugman help
 
 """
 
@@ -56,10 +56,14 @@ def main():
     impl = versions[version]
 
     url = "%s/v%d" % (arguments["--url"], version)
-    argv = [arguments['<command>']] + arguments['<args>']
+    cmd = arguments['<command>']
+    argv = [cmd] + arguments['<args>']
 
     api = impl(url, arguments)
-    api.dispatch(argv)
+    if cmd == 'help':
+        print api.__doc__
+    else:
+        api.dispatch(argv)
 
 
 if __name__ == '__main__':

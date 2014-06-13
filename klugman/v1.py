@@ -13,34 +13,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""usage:
-    klugman.py events [-irse]
-    klugman.py events (-h | --help)
 
-  options:
-  -i <id>              filter by event <id>
-  -r <request_id>      filter by <request_id>
-  -s <start_datetime>  starting datetime range
-  -e <end_datetime>    ending datetime range
-
-"""
-
-
+import base
 
 from docopt import docopt
 
 
-class V1(object):
+class Events(object):
+    """usage:
+        klugman.py events [options]
+
+      options:
+      -i, --id <id>
+                filter by event ID
+      -r, --request_id <request_id>
+                filter by Request ID
+      -s, --start <start_datetime>
+                starting datetime range
+      -e, --end <end_datetime>
+                ending datetime range
+
+      notes:
+      -r isn't needed if -i is supplied.
+    """
+
+    def cmdline(self, version, cmdline):
+        arguments = docopt(Events.__doc__, argv=cmdline)
+        if version.base_args['--debug']:
+            print arguments
+
+        response = self.do_events(version, arguments)
+        # Handle cmdline output here, not in do_foo()
+        raw_rows = response.json()
+
+        # TODO(sandy): This should come from the server-issued
+        # schema at some point.
+        keys = ['message_id', 'request_id', 'when', 'name']
+        base.dump_response(keys, raw_rows)
+
+    def do_events(self, version, arguments):
+        eid = arguments.get('--id')
+        rid = arguments.get('--request_id')
+        start = arguments.get('--start')
+        end = arguments.get('--end')
+
+        cmd = "events"
+        if eid:
+            cmd = "events/%d" % eid
+        params = base.remove_empty({'request_id': rid,
+                                    'start_ts': start,
+                                    'end_ts': end})
+
+        return base.get(version.base_url, cmd, params)
+
+
+class V1(base.Impl):
+    """usage:
+        klugman.py events [options]
+
+        -h, --help  show command options
+    """
 
     def __init__(self, base_url, base_args):
-        self.base_url = base_url
-        self.base_args = base_args
-
-    def dispatch(self, cmdline):
-        self.arguments = docopt(__doc__, argv=cmdline)
-        print self.arguments
-
-        if self.arguments['events']:
-            response = self.do_events()
-            # handle cmdline output here.
-
+        cmds = {'events': Events()}
+        super(V1, self).__init__(base_url, base_args, cmds, V1.__doc__)
