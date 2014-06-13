@@ -40,7 +40,7 @@ class Archives(object):
         response = self.do_archives(version, arguments)
         raw_rows = response.json()
 
-        keys = ['message_id', 'request_id', 'when', 'name']
+        keys = ['id', 'filename']
         base.dump_response(keys, raw_rows)
 
     def do_archives(self, version, arguments):
