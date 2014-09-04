@@ -60,13 +60,13 @@ class V2(base.Impl):
     # which basically says "anything is acceptable".
     # We will be more strict in the actual command handler.
     """usage:
-        klugman.py events [options]
+        klugman.py streams [options]
         klugman.py archives [<args>...] [options]
 
         -h, --help  show command options
     """
 
     def __init__(self, base_url, base_args):
-        cmds = {'events': v1.Events(),
+        cmds = {'streams': v1.Streams(),
                 'archives': Archives()}
         super(V2, self).__init__(base_url, base_args, cmds, V2.__doc__)
