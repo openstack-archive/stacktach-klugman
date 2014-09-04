@@ -59,11 +59,14 @@ class V2(base.Impl):
     # Note the [<args>...] [options] approach
     # which basically says "anything is acceptable".
     # We will be more strict in the actual command handler.
-    """usage:
-        klugman.py streams [options]
-        klugman.py archives [<args>...] [options]
+    """Klugman - StackTach.v3 client
 
-        -h, --help  show command options
+Usage:
+   klugman.py [options] streams [<args>...]
+   klugman.py [options] archives [<args>...]
+
+Options:
+   -h, --help  show command options
     """
 
     def __init__(self, base_url, base_args):

@@ -26,6 +26,8 @@ class Streams(object):
       options:
       --id <id>
                 get stream with id
+      --details
+                return events with each stream
       --state <state>
                 return streams in state
       --older_than <datetime>
@@ -71,22 +73,26 @@ class Streams(object):
         younger = arguments.get('--younger_than')
         trigger = arguments.get('--trigger_name')
         traits = arguments.get('--distinquishing_traits')
+        details = arguments.get('--details')
 
         cmd = "streams"
         if sid:
-            cmd = "streams/%d" % sid
+            cmd = "streams/%s" % sid
+            return base.get(version.base_url, cmd, {'details': details})
+
         params = base.remove_empty({'state': state,
                                     'older_than': older,
                                     'younger_than': younger,
                                     'trigger_name': trigger,
-                                    'distinquishing_traits': traits})
+                                    'distinquishing_traits': traits,
+                                    'details': details})
 
         return base.get(version.base_url, cmd, params)
 
 
 class V1(base.Impl):
     """usage:
-        klugman.py streams [options]
+        klugman.py streams [<args>...] [options]
 
         -h, --help  show command options
     """

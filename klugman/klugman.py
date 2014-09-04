@@ -59,6 +59,9 @@ def main():
     cmd = arguments['<command>']
     argv = [cmd] + arguments['<args>']
 
+    print "URL", url
+    print "ARGUMENTS", arguments
+    print "ARGV", argv
     api = impl(url, arguments)
     if cmd == 'help':
         print api.__doc__

@@ -46,7 +46,8 @@ class Impl(object):
         self.docs = docs
 
     def dispatch(self, cmdline):
-        arguments = docopt(self.docs, argv=cmdline, help=False)
+        arguments = docopt(self.docs, argv=cmdline, help=False,
+                           options_first=True)
         if self.base_args['--debug']:
             print arguments
 
