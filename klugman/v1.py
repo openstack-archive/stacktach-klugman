@@ -15,6 +15,7 @@
 
 
 import base
+import jsonutil
 
 from docopt import docopt
 
@@ -36,7 +37,7 @@ class Streams(object):
                 list streams younger than datetime
       --trigger_name <name>
                 list streams with given trigger definition
-      --distinquishing_traits <dtraits>
+      --distinguishing_traits <dtraits>
                 list stream with specific distriquishing traits
 
       Stream states:
@@ -58,12 +59,13 @@ class Streams(object):
 
         response = self.do_streams(version, arguments)
         # Handle cmdline output here, not in do_foo()
-        raw_rows = response.json()
+        raw_rows = response.json(object_hook=jsonutil.object_hook)
 
         # TODO(sandy): This should come from the server-issued
         # schema at some point.
-        keys = ['stream_id', 'state', 'last_updated', 'trigger_name',
-                'distinquishing_traits']
+        keys = ['id', 'state', 'name', 'first_event', 'last_event',
+                'fire_timestamp', 'expire_timestamp',
+                'distinguishing_traits', 'events']
         base.dump_response(keys, raw_rows)
 
     def do_streams(self, version, arguments):
@@ -72,7 +74,7 @@ class Streams(object):
         older = arguments.get('--older_than')
         younger = arguments.get('--younger_than')
         trigger = arguments.get('--trigger_name')
-        traits = arguments.get('--distinquishing_traits')
+        traits = arguments.get('--distinguishing_traits')
         details = arguments.get('--details')
 
         cmd = "streams"
@@ -84,7 +86,7 @@ class Streams(object):
                                     'older_than': older,
                                     'younger_than': younger,
                                     'trigger_name': trigger,
-                                    'distinquishing_traits': traits,
+                                    'distinguishing_traits': traits,
                                     'details': details})
 
         return base.get(version.base_url, cmd, params)

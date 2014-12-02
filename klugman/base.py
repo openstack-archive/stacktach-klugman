@@ -27,7 +27,7 @@ def dump_response(keys, rows):
     for row in rows:
         x = prettytable.PrettyTable(["Property", "Value"])
         for key in keys:
-            x.add_row([key, row[key]])
+            x.add_row([key, row.get(key)])
         print x
 
 

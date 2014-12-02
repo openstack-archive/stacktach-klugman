@@ -16,6 +16,7 @@
 
 import base
 import v1
+import jsonutil
 
 from docopt import docopt
 import requests
@@ -38,7 +39,7 @@ class Archives(object):
             print arguments
 
         response = self.do_archives(version, arguments)
-        raw_rows = response.json()
+        raw_rows = response.json(object_hook=jsonutil.object_hook)
 
         keys = ['id', 'filename']
         base.dump_response(keys, raw_rows)
