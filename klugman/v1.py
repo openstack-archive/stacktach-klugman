@@ -15,6 +15,7 @@
 
 
 import base
+import json
 import jsonutil
 
 from docopt import docopt
@@ -54,12 +55,16 @@ class Streams(object):
 
     def cmdline(self, version, cmdline):
         arguments = docopt(Streams.__doc__, argv=cmdline)
-        if version.base_args['--debug']:
+        debug = version.base_args['--debug']
+        if debug:
             print arguments
 
         response = self.do_streams(version, arguments)
         # Handle cmdline output here, not in do_foo()
         raw_rows = response.json(object_hook=jsonutil.object_hook)
+
+        if debug:
+            print json.dumps(raw_rows, indent=2)
 
         # TODO(sandy): This should come from the server-issued
         # schema at some point.
@@ -92,13 +97,72 @@ class Streams(object):
         return base.get(version.base_url, cmd, params)
 
 
+class NumStreams(object):
+    """usage:
+        klugman.py num-streams [options]
+
+      options:
+      --state <state>
+                return streams in state
+      --older_than <datetime>
+                list streams older than datetime
+      --younger_than <datetime>
+                list streams younger than datetime
+      --trigger_name <name>
+                list streams with given trigger definition
+      --distinguishing_traits <dtraits>
+                list stream with specific distriquishing traits
+
+      Stream states:
+      collecting - collecting events
+      ready - ready for processing
+      triggered - being processed
+      processed - processing completed
+      error - pipeline processing failed
+      commit_error - pipeline result commit failed
+
+      Distinguishing trait format:
+      "trait:value;trait:value;..."
+    """
+
+    def cmdline(self, version, cmdline):
+        arguments = docopt(NumStreams.__doc__, argv=cmdline)
+        debug = version.base_args['--debug']
+        if debug:
+            print arguments
+
+        response = self.do_stream_count(version, arguments)
+        raw_rows = response.json(object_hook=jsonutil.object_hook)
+
+        keys = ['count']
+        base.dump_response(keys, raw_rows)
+
+    def do_stream_count(self, version, arguments):
+        state = arguments.get('--state')
+        older = arguments.get('--older_than')
+        younger = arguments.get('--younger_than')
+        trigger = arguments.get('--trigger_name')
+        traits = arguments.get('--distinguishing_traits')
+
+        cmd = "streams/count"
+        params = base.remove_empty({'state': state,
+                                    'older_than': older,
+                                    'younger_than': younger,
+                                    'trigger_name': trigger,
+                                    'distinguishing_traits': traits})
+
+        return base.get(version.base_url, cmd, params)
+
+
 class V1(base.Impl):
     """usage:
         klugman.py streams [<args>...] [options]
+        klugman.py num-streams [<args>...] [options]
 
         -h, --help  show command options
     """
 
     def __init__(self, base_url, base_args):
-        cmds = {'streams': Streams()}
+        cmds = {'streams': Streams(),
+                'num-streams': NumStreams()}
         super(V1, self).__init__(base_url, base_args, cmds, V1.__doc__)
