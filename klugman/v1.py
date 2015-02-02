@@ -17,8 +17,19 @@
 import base
 import json
 import jsonutil
+import sys
 
 from docopt import docopt
+
+
+def check_state(state):
+    if state and state not in ["active", "firing", "expiring", "error",
+                               "expire_error", "completed",
+                               "retry_fire", "retry_expire"]:
+        print "Invalid state. %s not one of 'active, firing, " \
+              "expiring, error, expire_error, completed, " \
+              "retry_fire or retry_expire" % state
+        sys.exit(1)
 
 
 class Streams(object):
@@ -33,9 +44,9 @@ class Streams(object):
       --state <state>
                 return streams in state
       --older_than <datetime>
-                list streams older than datetime
+                list streams where first_event < <datetime>
       --younger_than <datetime>
-                list streams younger than datetime
+                list streams where last_event > <datetime>
       --trigger_name <name>
                 list streams with given trigger definition
       --distinguishing_traits <dtraits>
@@ -82,6 +93,7 @@ class Streams(object):
         traits = arguments.get('--distinguishing_traits')
         details = arguments.get('--details')
 
+        check_state(state)
         cmd = "streams"
         if sid:
             cmd = "streams/%s" % sid
@@ -106,20 +118,22 @@ class NumStreams(object):
                 return streams in state
       --older_than <datetime>
                 list streams older than datetime
+      --older_than <datetime>
+                list streams where first_event < <datetime>
       --younger_than <datetime>
-                list streams younger than datetime
-      --trigger_name <name>
-                list streams with given trigger definition
+                list streams where last_event > <datetime>
       --distinguishing_traits <dtraits>
                 list stream with specific distriquishing traits
 
       Stream states:
-      collecting - collecting events
-      ready - ready for processing
-      triggered - being processed
-      processed - processing completed
-      error - pipeline processing failed
-      commit_error - pipeline result commit failed
+      active = collecting events
+      firing = about to process events
+      expiring = about to expire stream
+      error = pipeline processing failed
+      expire_error = pipeline expiry failed
+      completed = stream processing completed
+      retry_fire = re-attempt pipeline firing
+      retry_expire = re-attempt pipeline expiry
 
       Distinguishing trait format:
       "trait:value;trait:value;..."
@@ -143,6 +157,8 @@ class NumStreams(object):
         younger = arguments.get('--younger_than')
         trigger = arguments.get('--trigger_name')
         traits = arguments.get('--distinguishing_traits')
+
+        check_state(state)
 
         cmd = "streams/count"
         params = base.remove_empty({'state': state,
