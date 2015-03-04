@@ -40,7 +40,7 @@ import v1
 import v2
 
 versions = {1: v1.V1, 2: v2.V2}
-latest = 2
+latest = 1
 
 
 def main():

@@ -124,5 +124,45 @@ $ klugman streams --older_than 01-31-2015T13:30
 $ klugman streams --older_than 01-31-2015T13:30 --state completed
 ...
 
-```
+$ klugman events --traits=os_distro:com.redhat
++--------------------+------------------------------------------+
+|      Property      |                  Value                   |
++--------------------+------------------------------------------+
+|       _mark        |                    1                     |
+|    bandwidth_in    |                  537783                  |
+|   bandwidth_out    |                 19189871                 |
+|      disk_gb       |                   160                    |
+|    display_name    |             Instance_296624              |
+|    ephemeral_gb    |                    0                     |
+|     event_type     |         compute.instance.update          |
+|  instance_flavor   |          4GB Standard Instance           |
+| instance_flavor_id |                    5                     |
+|    instance_id     |   60c52a73-ec8e-47bc-81eb-eee38931a60e   |
+|   instance_type    |          4GB Standard Instance           |
+|    launched_at     |        2014-04-17 11:40:15.321940        |
+|     memory_mb      |                   4096                   |
+|     message_id     |   8eca72ba-3adb-4354-aaa4-f61980549e07   |
+|  os_architecture   |                   x64                    |
+|     os_distro      |                com.redhat                |
+|     os_version     |                   6.3                    |
+|     request_id     | req-511c28a6-c6ec-4173-a124-7c92989e443c |
+|      root_gb       |                   160                    |
+|      service       |             publisher-189550             |
+|       state        |                  active                  |
+| state_description  |               powering-off               |
+|     tenant_id      |                  854126                  |
+|     timestamp      |        2015-03-03 20:13:56.560940        |
+|      user_id       |                  366869                  |
+|       vcpus        |                    2                     |
++--------------------+------------------------------------------+
 
+$ klugman events --msg_id=8eca72ba-3adb-4354-aaa4-f61980549e07
+...
+
+
+$ klugman events --name=compute.instance.power_off.end
+...
+
+$ klugman events --from="2015-03-04T22:25" --to="2015-03-04T22:45"
+
+```

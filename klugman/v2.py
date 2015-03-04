@@ -65,6 +65,7 @@ class V2(base.Impl):
 Usage:
    klugman.py [options] streams [<args>...]
    klugman.py num-streams [<args>...] [options]
+   klugman.py events [<args>...] [options]
    klugman.py [options] archives [<args>...]
 
 Options:
@@ -74,5 +75,6 @@ Options:
     def __init__(self, base_url, base_args):
         cmds = {'streams': v1.Streams(),
                 'num-streams': v1.NumStreams(),
+                'events': v1.Events(),
                 'archives': Archives()}
         super(V2, self).__init__(base_url, base_args, cmds, V2.__doc__)
