@@ -17,6 +17,7 @@
 import base
 import json
 import jsonutil
+import prettytable
 import sys
 
 from docopt import docopt
@@ -79,10 +80,30 @@ class Streams(object):
 
         # TODO(sandy): This should come from the server-issued
         # schema at some point.
+
         keys = ['id', 'state', 'name', 'first_event', 'last_event',
-                'fire_timestamp', 'expire_timestamp',
-                'distinguishing_traits', 'events']
-        base.dump_response(keys, raw_rows)
+                'fire_timestamp', 'expire_timestamp']
+        for row in raw_rows:
+            x = prettytable.PrettyTable(["Section", "Property", "Value"])
+            for key in keys:
+                x.add_row(["Stream", key, row.get(key)])
+
+            if 'distinguishing_traits' in row.keys():
+                for key, value in row['distinguishing_traits'].items():
+                    x.add_row(["D.Trait", key, value])
+
+            print x
+
+            if 'events' in row.keys():
+                # This has detail rows ... handle those separately.
+                print "Events:"
+                for event in row['events']:
+                    x = prettytable.PrettyTable(["Property", "Value"])
+                    sorted_keys = sorted(event.keys())
+                    for key in sorted_keys:
+                        x.add_row([key, event[key]])
+                    print x
+
 
     def do_streams(self, version, arguments):
         sid = arguments.get('--id')
