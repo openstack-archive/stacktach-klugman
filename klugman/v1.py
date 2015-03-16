@@ -191,15 +191,73 @@ class NumStreams(object):
         return base.get(version.base_url, cmd, params)
 
 
+class Events(object):
+    """usage:
+        klugman.py events [options]
+
+      options:
+      --debug
+      --name <name>
+                return events of type <name>
+      --from <datetime>
+                list events generated before datetime
+      --to <datetime>
+                list events generated after datetime
+      --traits <traits>
+                list events with specific traits
+      --msg_id <message_id>
+                get event with <message_id>
+
+      Trait format:
+      "trait:value;trait:value;..."
+    """
+
+    def cmdline(self, version, cmdline):
+        arguments = docopt(Events.__doc__, argv=cmdline)
+        debug = version.base_args['--debug']
+        if debug:
+            print arguments
+
+        response = self.do_event(version, arguments)
+        raw_rows = response.json(object_hook=jsonutil.object_hook)
+
+        keys = set()
+        for row in raw_rows:
+            keys.update(row.keys())
+        keys = sorted(list(keys))
+        base.dump_response(keys, raw_rows)
+
+    def do_event(self, version, arguments):
+        _from = arguments.get('--from')
+        _to = arguments.get('--to')
+        name = arguments.get('--name')
+        traits = arguments.get('--traits')
+        msg_id = arguments.get('--msg_id')
+
+        if msg_id:
+            cmd = "events/%s" % msg_id
+            return base.get(version.base_url, cmd, {})
+
+        cmd = "events"
+        params = base.remove_empty({'from_datetime': _from,
+                                    'to_datetime': _to,
+                                    'event_name': name,
+                                    'traits': traits})
+
+        return base.get(version.base_url, cmd, params)
+
+
 class V1(base.Impl):
     """usage:
         klugman.py streams [<args>...] [options]
         klugman.py num-streams [<args>...] [options]
+        klugman.py events [<args>...] [options]
 
         -h, --help  show command options
     """
 
     def __init__(self, base_url, base_args):
         cmds = {'streams': Streams(),
-                'num-streams': NumStreams()}
+                'num-streams': NumStreams(),
+                'events': Events()}
         super(V1, self).__init__(base_url, base_args, cmds, V1.__doc__)
