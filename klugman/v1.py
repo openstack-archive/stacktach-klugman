@@ -247,11 +247,58 @@ class Events(object):
         return base.get(version.base_url, cmd, params)
 
 
+class NumEvents(object):
+    """usage:
+        klugman.py num-events [options]
+
+      options:
+      --debug
+      --name <name>
+                return events of type <name>
+      --from <datetime>
+                list events generated before datetime
+      --to <datetime>
+                list events generated after datetime
+      --traits <traits>
+                list events with specific traits
+
+      Trait format:
+      "trait:value;trait:value;..."
+    """
+
+    def cmdline(self, version, cmdline):
+        arguments = docopt(NumEvents.__doc__, argv=cmdline)
+        debug = version.base_args['--debug']
+        if debug:
+            print arguments
+
+        response = self.do_event(version, arguments)
+        raw_rows = response.json(object_hook=jsonutil.object_hook)
+
+        keys = ['count']
+        base.dump_response(keys, raw_rows)
+
+    def do_event(self, version, arguments):
+        _from = arguments.get('--from')
+        _to = arguments.get('--to')
+        name = arguments.get('--name')
+        traits = arguments.get('--traits')
+
+        cmd = "events/count"
+        params = base.remove_empty({'from_datetime': _from,
+                                    'to_datetime': _to,
+                                    'event_name': name,
+                                    'traits': traits})
+
+        return base.get(version.base_url, cmd, params)
+
+
 class V1(base.Impl):
     """usage:
         klugman.py streams [<args>...] [options]
         klugman.py num-streams [<args>...] [options]
         klugman.py events [<args>...] [options]
+        klugman.py num-events [<args>...] [options]
 
         -h, --help  show command options
     """
@@ -259,5 +306,6 @@ class V1(base.Impl):
     def __init__(self, base_url, base_args):
         cmds = {'streams': Streams(),
                 'num-streams': NumStreams(),
-                'events': Events()}
+                'events': Events(),
+                'num-events': NumEvents()}
         super(V1, self).__init__(base_url, base_args, cmds, V1.__doc__)
