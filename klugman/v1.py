@@ -51,7 +51,7 @@ class Streams(object):
       --trigger_name <name>
                 list streams with given trigger definition
       --distinguishing_traits <dtraits>
-                list stream with specific distriquishing traits
+                list stream with specific distinguishing traits
 
       Stream states:
       collecting - collecting events
@@ -144,7 +144,7 @@ class NumStreams(object):
       --younger_than <datetime>
                 list streams where last_event > <datetime>
       --distinguishing_traits <dtraits>
-                list stream with specific distriquishing traits
+                list stream with specific distinguishing traits
 
       Stream states:
       active = collecting events
