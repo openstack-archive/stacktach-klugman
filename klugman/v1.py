@@ -221,6 +221,8 @@ class Events(object):
         response = self.do_event(version, arguments)
         raw_rows = response.json(object_hook=jsonutil.object_hook)
 
+        if isinstance(raw_rows, dict):
+            raw_rows = [raw_rows]
         keys = set()
         for row in raw_rows:
             keys.update(row.keys())
