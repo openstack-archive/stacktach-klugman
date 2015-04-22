@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import jsonutil
+
 from docopt import docopt
 import prettytable
 import requests
@@ -32,26 +34,12 @@ def dump_response(keys, rows):
         print x
 
 
-def get(url, cmd, params):
+def get(url, cmd, params, debug=False):
     final = "%s/%s" % (url, cmd)
+    if debug:
+        print 'URL: %s' % final
+        for item in params.items():
+            print "   : %s='%s'" % item
     ret = requests.get(final, params=params)
     ret.raise_for_status()
-    return ret
-
-
-class Impl(object):
-    def __init__(self, base_url, base_args, cmds, docs):
-        self.base_url = base_url
-        self.base_args = base_args
-        self.cmds = cmds
-        self.docs = docs
-
-    def dispatch(self, cmdline):
-        arguments = docopt(self.docs, argv=cmdline, help=False,
-                           options_first=True)
-        if self.base_args['--debug']:
-            print arguments
-
-        for key in self.cmds.keys():
-            if arguments.get(key):
-                self.cmds[key].cmdline(self, cmdline)
+    return ret.json(object_hook=jsonutil.object_hook)
