@@ -13,57 +13,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Klugman - cmdline and client library for StackTach.v3
-
-Usage:
-  klugman.py [options] <command> [<args>...]
-  klugman.py (-h | --help)
-  klugman.py --version
-
-Options:
-  -h --help     Show this help message
-  --version     Show klugman version
-  --debug       Debug mode
-  -a, --api_version <api_version>
-                Which API version to use [default: latest]
-  --url <url>   StackTach.v3 server url [default: http://localhost:8000]
-
-For a list of possible StackTach commands, use:
-   klugman help
-
-"""
-
-from docopt import docopt
-
+import argparse
 
 import v1
-import v2
 
-versions = {1: v1.V1, 2: v2.V2}
+versions = {1: v1.V1}
 latest = 1
 
 
-def main():
-    arguments = docopt(__doc__, options_first=True)
-    if arguments['--debug']:
-        print arguments
+def _get_base_parser():
+    parser = argparse.ArgumentParser(description='Klugman cmdline tool')
+    parser.add_argument('--version', metavar='version', type=int,
+                        default=latest, help='Which api version to use.')
+    parser.add_argument('url', metavar='url',
+                        help='The API endpoint url')
+    parser.add_argument('--debug', action='store_true',
+                        default=False, help='Enable debugging.')
+    return parser
 
-    version = arguments["--api_version"]
-    if version == "latest":
-        version = latest
-    else:
-        version = int(version)
+
+def main():
+    parser = _get_base_parser()
+    parser.add_argument('args', nargs=argparse.REMAINDER)
+    arguments = parser.parse_args()
+
+    version = arguments.version
     impl = versions[version]
 
-    url = "%s/v%d" % (arguments["--url"], version)
-    cmd = arguments['<command>']
-    argv = [cmd] + arguments['<args>']
+    url = "%s/v%d" % (arguments.url, version)
 
-    api = impl(url, arguments)
-    if cmd == 'help':
-        print api.__doc__
-    else:
-        api.dispatch(argv)
+    # Ok, we got past the basics. Add the subparsers and try again ...
+    parser = _get_base_parser()
+    api = impl(url, parser)
+    arguments = parser.parse_args()
+
+    api.dispatch(arguments)
 
 
 if __name__ == '__main__':
