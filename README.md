@@ -8,10 +8,11 @@ Using Klugman as a client library:
 ```
 from klugman import v1
 
-events = v1.Events('http://www.example.com:8000')
+# NOTE: include version number in URL!
+events = v1.Events('http://www.example.com:8000/v1')
 data = events.get_events_count(name='compute.instance.update')
 
-streams = v1.Streams('http://www.example.com:8000')
+streams = v1.Streams('http://www.example.com:8000/v1')
 data = streams.get_streams(state='completed', details=True)
 ```
 
