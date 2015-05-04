@@ -15,7 +15,6 @@
 
 import jsonutil
 
-from docopt import docopt
 import prettytable
 import requests
 
@@ -31,15 +30,15 @@ def dump_response(keys, rows):
         for key in keys:
             if key in row:
                 x.add_row([key, row[key]])
-        print x
+        print(x)
 
 
 def get(url, cmd, params, debug=False):
     final = "%s/%s" % (url, cmd)
     if debug:
-        print 'URL: %s' % final
+        print('URL: %s' % final)
         for item in params.items():
-            print "   : %s='%s'" % item
+            print("   : %s='%s'" % item)
     ret = requests.get(final, params=params)
     ret.raise_for_status()
     return ret.json(object_hook=jsonutil.object_hook)

@@ -14,9 +14,7 @@
 # limitations under the License.
 
 
-import argparse
 import prettytable
-import sys
 
 import base
 
@@ -26,30 +24,41 @@ class Streams(object):
         self.url = url
         if subparser:
             parser = subparser.add_parser('streams')
-            parser.add_argument('--name', metavar='trigger_name',
-                 help='Return streams of type trigger_name.')
-            parser.add_argument('--from', metavar='datetime', dest='_from',
-                 help='Return streams last updated after datetime')
-            parser.add_argument('--to', metavar='datetime',
-                 help='Return streams last updated before datetime')
-            parser.add_argument('--traits', metavar='trait_list',
-                 help='Return streams with specific distinguishing traits.')
-            parser.add_argument('--details', action='store_true',
-                   default=False, help='Return full event details.')
-            parser.add_argument('--state', choices=['active', 'firing',
-                   'expiring', 'error', 'expire_error', 'completed',
-                   'retry_fire', 'retry_expire'],
-                   help='Only return streams in this state.')
+            parser.add_argument(
+                '--name', metavar='trigger_name',
+                help='Return streams of type trigger_name.')
+            parser.add_argument(
+                '--from', metavar='datetime', dest='_from',
+                help='Return streams last updated after datetime')
+            parser.add_argument(
+                '--to', metavar='datetime',
+                help='Return streams last updated before datetime')
+            parser.add_argument(
+                '--traits', metavar='trait_list',
+                help='Return streams with specific distinguishing traits.')
+            parser.add_argument(
+                '--details', action='store_true',
+                default=False,
+                help='Return full event details.')
+            parser.add_argument(
+                '--state', choices=['active', 'firing',
+                                    'expiring', 'error',
+                                    'expire_error', 'completed',
+                                    'retry_fire',
+                                    'retry_expire'],
+                help='Only return streams in this state.')
 
             group = parser.add_mutually_exclusive_group()
-            group.add_argument('--count', action='store_true',
-                   default=False,
-                   help='Return a count of streams matching filter criteria.')
-            group.add_argument('--id', metavar='stream_id', dest='stream_id',
-                   help='Return a single specific stream by id.')
+            group.add_argument(
+                '--count', action='store_true',
+                default=False,
+                help='Return a count of streams matching filter criteria.')
+            group.add_argument(
+                '--id', metavar='stream_id', dest='stream_id',
+                help='Return a single specific stream by id.')
 
     def get_streams_count(self, from_datetime=None, to_datetime=None,
-                       traits=None, state=None, name=None, debug=False):
+                          traits=None, state=None, name=None, debug=False):
         if traits:
             traits = ",".join(["%s:%s" % item for item in traits.items()])
         cmd = "streams/count"
@@ -62,8 +71,8 @@ class Streams(object):
         return base.get(self.url, cmd, params, debug=debug)
 
     def get_streams(self, from_datetime=None, to_datetime=None,
-                  traits=None, name=None, stream_id=None, debug=False,
-                  state=None, details=None):
+                    traits=None, name=None, stream_id=None, debug=False,
+                    state=None, details=None):
         if stream_id:
             params = base.remove_empty({'details': details})
             return base.get(self.url, "streams/%s" % stream_id, params,
@@ -97,9 +106,9 @@ class Streams(object):
 
         if arguments.count:
             rows = self.get_streams_count(from_datetime=_from, to_datetime=_to,
-                                        name=_name, traits=trait_dict,
-                                        state=_state, debug=_debug)
-            print rows
+                                          name=_name, traits=trait_dict,
+                                          state=_state, debug=_debug)
+            print(rows)
             keys = ['count']
             base.dump_response(keys, rows)
             return
@@ -121,17 +130,17 @@ class Streams(object):
                 for key, value in row['distinguishing_traits'].items():
                     x.add_row(["D.Trait", key, value])
 
-            print x
+            print(x)
 
             if 'events' in row.keys():
                 # This has detail rows ... handle those separately.
-                print "Events:"
+                print("Events:")
                 for event in row['events']:
                     x = prettytable.PrettyTable(["Property", "Value"])
                     sorted_keys = sorted(event.keys())
                     for key in sorted_keys:
                         x.add_row([key, event[key]])
-                    print x
+                    print(x)
 
 
 class Events(object):
@@ -139,22 +148,27 @@ class Events(object):
         self.url = url
         if subparser:
             parser = subparser.add_parser('events')
-            parser.add_argument('--name', metavar='event_name',
-                             help='Return events of type event_name.')
-            parser.add_argument('--from', metavar='datetime', dest='_from',
-                             help='Return events generated before datetime')
-            parser.add_argument('--to', metavar='datetime',
-                             help='Return events generated after datetime')
-            parser.add_argument('--traits', metavar='trait_list',
-                             help='Return events with specific traits.')
+            parser.add_argument(
+                '--name', metavar='event_name',
+                help='Return events of type event_name.')
+            parser.add_argument(
+                '--from', metavar='datetime', dest='_from',
+                help='Return events generated before datetime')
+            parser.add_argument(
+                '--to', metavar='datetime',
+                help='Return events generated after datetime')
+            parser.add_argument(
+                '--traits', metavar='trait_list',
+                help='Return events with specific traits.')
 
             group = parser.add_mutually_exclusive_group()
-            group.add_argument('--count', action='store_true',
-                   default=False,
-                   help='Return a count of events matching filter criteria.')
-            group.add_argument('--msg_id', metavar='message_id',
-                   help='Return a single specific event by message id.')
-
+            group.add_argument(
+                '--count', action='store_true',
+                default=False,
+                help='Return a count of events matching filter criteria.')
+            group.add_argument(
+                '--msg_id', metavar='message_id',
+                help='Return a single specific event by message id.')
 
     def get_events_count(self, from_datetime=None, to_datetime=None,
                          traits=None, name=None, debug=False):
@@ -169,7 +183,7 @@ class Events(object):
         return base.get(self.url, cmd, params, debug=debug)
 
     def get_events(self, from_datetime=None, to_datetime=None,
-                  traits=None, name=None, msg_id=None, debug=False):
+                   traits=None, name=None, msg_id=None, debug=False):
         if msg_id:
             return base.get(self.url, "events/%s" % msg_id, {}, debug=debug)
 
@@ -232,7 +246,7 @@ class V1(object):
 
         # This shouldn't be needed, but I'm being paranoid.
         if cmd not in self.resources:
-            print "Unknown command: '%s'" % cmd
+            print("Unknown command: '%s'" % cmd)
             return
 
         self.resources[cmd]._cmdline(arguments)
