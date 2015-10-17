@@ -1,5 +1,5 @@
 [gerrit]
 host=review.openstack.org
 port=29418
-project=stackforge/stacktach-klugman.git
+project=openstack/stacktach-klugman.git
 
