@@ -1,6 +1,0 @@
-hacking>=0.10.0,<0.11
-docopt
-prettytable
-requests
-timex
-iso8601
